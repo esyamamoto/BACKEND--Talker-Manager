@@ -23,7 +23,7 @@ const getPeopleId = async (id) => {
   const peopleFound = people.find((person) => person.id === Number(id));
   return peopleFound;
 };
-
+// ----------------------------------------------------------------------------
 const postPeople = async (people) => {
   try {
     const data = await readFile();
@@ -34,9 +34,26 @@ const postPeople = async (people) => {
     return { error: error.message };
   }
 };
-
+// ----------------------------------------------------------------------------
+const putTalker = async (talker, id) => {
+  try {
+    const talk = await readFile();
+    const index = talk.findIndex((ind) => ind.id === id);
+    if (index === -1) {
+      return null;
+    }
+    talk[index] = { id, ...talker };
+    await fs.writeFile(pathJSON, JSON.stringify(talk));
+    return true;
+  } catch (error) {
+    console.error(error, 'alterar pessoas');
+    return { error: error.message };
+  }
+};
+// ----------------------------------------------------------------------------
 module.exports = {
   readFile,
   getPeopleId,
   postPeople,
+  putTalker,
 };

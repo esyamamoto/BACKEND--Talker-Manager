@@ -1,5 +1,5 @@
 const express = require('express');
-const { readFile, getPeopleId, postPeople } = require('./talker');
+const { readFile, getPeopleId, postPeople, putTalker } = require('./talker');
 const requestToken = require('./services/requestToken');
 const emailOK = require('./services/emailOk');
 const passwordOK = require('./services/passwordOk');
@@ -72,6 +72,26 @@ app.post('/talker',
 
     await postPeople(newTalker);
     return res.status(201).json(newTalker);
+  });
+//-------------------------------------------------------------------------------
+app.put('/talker/:id',
+  tokenAuth, 
+  nameReq, 
+  ageReq, 
+  talkReq, 
+  watchedAtReq, 
+  rateReq, 
+  async (req, res) => {
+    const id = Number(req.params.id);
+    const data = req.body;
+    const newTalk = { id, ...data };
+    const talkPut = await putTalker(newTalk, id);
+    if (!talkPut) {
+      return res.status(404).json({
+        message: 'Pessoa palestrante não encontrada',
+      });
+    }
+    return res.status(200).json(newTalk);
   });
 
 //-------------------------------------------------------------------------------
