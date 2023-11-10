@@ -35,7 +35,7 @@ const postPeople = async (people) => {
   }
 };
 // ----------------------------------------------------------------------------
-const putTalker = async (talker, id) => {
+const putPeople = async (talker, id) => {
   try {
     const talk = await readFile();
     const index = talk.findIndex((ind) => ind.id === id);
@@ -51,9 +51,21 @@ const putTalker = async (talker, id) => {
   }
 };
 // ----------------------------------------------------------------------------
+const deletePeople = async (id) => {
+  try {
+    const talkers = await readFile();
+    const deletedTalkers = talkers.filter((person) => person.id !== id);
+    await fs.writeFile(pathJSON, JSON.stringify(deletedTalkers));
+  } catch (error) {
+    console.error(error, 'deletar pessoas');
+    return { error: error.message };
+  }
+};
+// ----------------------------------------------------------------------------
 module.exports = {
   readFile,
   getPeopleId,
   postPeople,
-  putTalker,
+  putPeople,
+  deletePeople,
 };

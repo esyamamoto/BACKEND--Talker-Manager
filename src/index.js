@@ -1,5 +1,5 @@
 const express = require('express');
-const { readFile, getPeopleId, postPeople, putTalker } = require('./talker');
+const { readFile, getPeopleId, postPeople, putPeople, deletePeople } = require('./talker');
 const requestToken = require('./services/requestToken');
 const emailOK = require('./services/emailOk');
 const passwordOK = require('./services/passwordOk');
@@ -85,7 +85,7 @@ app.put('/talker/:id',
     const id = Number(req.params.id);
     const data = req.body;
     const newTalk = { id, ...data };
-    const talkPut = await putTalker(newTalk, id);
+    const talkPut = await putPeople(newTalk, id);
     if (!talkPut) {
       return res.status(404).json({
         message: 'Pessoa palestrante não encontrada',
@@ -93,7 +93,14 @@ app.put('/talker/:id',
     }
     return res.status(200).json(newTalk);
   });
-
+//-------------------------------------------------------------------------------
+app.delete('/talker/:id',
+  tokenAuth,
+  async (req, res) => {
+    const id = Number(req.params.id);
+    await deletePeople(id);
+    return res.status(204).end();
+  });
 //-------------------------------------------------------------------------------
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
