@@ -1,13 +1,14 @@
 const express = require('express');
 const { readFile, getPeopleId } = require('./talker');
-const requestToken = require('./services/token');
-const { emailOK } = require('./services/emailOk')
-const { passwordOK } = require('./services/passwordOk');
+const requestToken = require('./services/requestToken');
+const emailOK = require('./services/emailOk');
+const passwordOK = require('./services/passwordOk');
 
 const app = express();
 app.use(express.json());
 
 const HTTP_OK_STATUS = 200;
+const HTTP_ERROR_STATUS = 400;
 const PORT = process.env.PORT || '3001';
 
 // ---------------------------------------------------------------------
@@ -19,8 +20,8 @@ app.get('/talker', async (req, res) => {
     }
     return res.status(HTTP_OK_STATUS).json(data);
   } catch (error) {
-    console.error('linha index');
-    return console.log(error); // mudar aqui tbm um return valido para o client
+    console.error('Erro na rota /talker:', error);
+    return res.status(HTTP_ERROR_STATUS).json({ error: error.message });
   }
 });
 // ----------------------------------------------------------------------
@@ -35,7 +36,12 @@ app.get('/talker/:id', async (req, res) => {
 // ---------------------------------------------------------------------------
 app.post('/login', passwordOK, emailOK, async (req, res) => {
   const token = requestToken();
-  return res.status(200).json({ token }); // mudar aqui tbm um return valido para o client
+  const response = {
+    success: true,
+    message: 'Login successful',
+    token,
+  };
+  return res.status(200).json(response);
 });
 //-----------------------------------------------------------
 // não remova esse endpoint, e para o avaliador funcionar
