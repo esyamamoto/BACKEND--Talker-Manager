@@ -1,8 +1,14 @@
 const express = require('express');
-const { readFile, getPeopleId } = require('./talker');
+const { readFile, getPeopleId, postPeople } = require('./talker');
 const requestToken = require('./services/requestToken');
 const emailOK = require('./services/emailOk');
 const passwordOK = require('./services/passwordOk');
+const tokenAuth = require('./services/auth'); 
+const nameReq = require('./services/name');
+const rateReq = require('./services/rate');
+const watchedAtReq = require('./services/watchedAt');
+const ageReq = require('./services/age');
+const talkReq = require('./services/talk');
 
 const app = express();
 app.use(express.json());
@@ -11,7 +17,7 @@ const HTTP_OK_STATUS = 200;
 const HTTP_ERROR_STATUS = 400;
 const PORT = process.env.PORT || '3001';
 
-// ---------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 app.get('/talker', async (req, res) => {
   try {
     const data = await readFile();
@@ -24,7 +30,7 @@ app.get('/talker', async (req, res) => {
     return res.status(HTTP_ERROR_STATUS).json({ error: error.message });
   }
 });
-// ----------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;
   const talking = await getPeopleId(id);
@@ -33,7 +39,7 @@ app.get('/talker/:id', async (req, res) => {
   }
   return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
 });
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 app.post('/login', passwordOK, emailOK, async (req, res) => {
   const token = requestToken();
   const response = {
@@ -43,7 +49,32 @@ app.post('/login', passwordOK, emailOK, async (req, res) => {
   };
   return res.status(200).json(response);
 });
-//-----------------------------------------------------------
+// -------------------------------------------------------------------------------
+
+app.post('/talker',
+  tokenAuth, 
+  nameReq, 
+  ageReq, 
+  talkReq, 
+  watchedAtReq, 
+  rateReq, 
+  async (req, res) => {
+    const { name, age, talk } = req.body;
+    const data = await readFile();
+    const newId = data.length + 1;
+
+    const newTalker = { 
+      id: newId, 
+      name, 
+      age, 
+      talk,
+    };
+
+    await postPeople(newTalker);
+    return res.status(201).json(newTalker);
+  });
+
+//-------------------------------------------------------------------------------
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
